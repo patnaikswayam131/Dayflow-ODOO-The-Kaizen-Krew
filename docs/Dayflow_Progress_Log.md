@@ -10,7 +10,7 @@ Update this on every meaningful commit or work session (not every single commit 
 | | | Dev 1 | 1 — Foundation | Auth/RBAC | | | ☐ In progress |
 | | | Dev 2 | 1/2 — Employee | | | | ☐ Not started |
 | | | Dev 3 | 1/2 — Attendance/Leave | | | | ☐ Not started |
-| | | Dev 4 | 1/2 — Salary/Shell | | | | ☐ Not started |
+| 2026-08-22 | 12:48 | Dev 4 | 1/2 — Salary/Shell | Salary & Shell | Implemented pure salary engine (FR-31-35), payable days engine (FR-37), company settings (FR-36), salary API & UI, top nav shell, and Security Checklist Part B audit | `feat/salary-shell` | ✅ Done |
 | | | | 3 — Integration | | | | ☐ Not started |
 | | | | 4 — QA/Security pass | | | | ☐ Not started |
 | | | | 5 — Polish/Submit | | | | ☐ Not started |

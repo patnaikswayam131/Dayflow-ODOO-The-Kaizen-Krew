@@ -22,6 +22,9 @@ const TimeOffPage = lazy(() =>
 const ProfilePage = lazy(() =>
   import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage })),
 );
+const CompanySettingsPage = lazy(() =>
+  import('./pages/CompanySettingsPage').then((m) => ({ default: m.CompanySettingsPage })),
+);
 const NotFoundPage = lazy(() =>
   import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
 );
@@ -56,7 +59,6 @@ export function App() {
             <Route path="/login" element={<LoginPage />} />
 
             {/* Authenticated routes (wrapped in AppLayout shell) */}
-            {/* TODO: Add ProtectedRoute wrapper that checks auth state */}
             <Route
               path="/app"
               element={
@@ -68,6 +70,7 @@ export function App() {
                       <Route path="attendance/*" element={<AttendancePage />} />
                       <Route path="time-off/*" element={<TimeOffPage />} />
                       <Route path="profile/*" element={<ProfilePage />} />
+                      <Route path="settings/company" element={<CompanySettingsPage />} />
                     </Routes>
                   </Suspense>
                 </AppLayout>

@@ -78,14 +78,10 @@ leaveRouter.get('/', (_req, res) => {
 });
 router.use('/leave', leaveRouter);
 
-// ── Salary routes (Dev 4: feat/salary-shell) ──
-const salaryRouter = Router();
-salaryRouter.get('/', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/salary-shell', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
+import { salaryRouter } from './salary.js';
+import { companyRouter } from './company.js';
+
 router.use('/salary', salaryRouter);
+router.use('/company', companyRouter);
 
 export default router;

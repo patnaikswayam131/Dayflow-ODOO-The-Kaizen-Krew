@@ -34,7 +34,7 @@ export interface UpsertSalaryStructureDTO {
 export interface SalaryComponentInput {
   componentKey: SalaryComponentKey;
   computationType: ComputationType;
-  percentageBase?: PercentageBase;
+  percentageBase?: PercentageBase | null;
   configuredValue: number;
   // computedAmount is always server-computed, never trust client input
 }
