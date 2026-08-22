@@ -7,8 +7,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@dayflow/shared': path.resolve(__dirname, '../../packages/shared/src'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@dayflow/shared': path.resolve(import.meta.dirname, '../../packages/shared/src'),
     },
   },
   server: {

@@ -25,9 +25,8 @@
     "forceConsistentCasingInFileNames": true,
 
     /* Path aliases */
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@dayflow/shared": ["../../packages/shared/src"],
       "@dayflow/shared/*": ["../../packages/shared/src/*"]
     }
