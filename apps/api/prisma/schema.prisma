@@ -118,6 +118,9 @@ model users {
   job_love_text        String?
   interests            String?
 
+  // Email verification (FR-1 — bootstrap admin must verify before login)
+  email_verified       Boolean     @default(false)
+
   created_at           DateTime    @default(now()) @db.Timestamptz()
   updated_at           DateTime    @default(now()) @db.Timestamptz()
 
@@ -136,6 +139,7 @@ model users {
   salary_structures    salary_structures[]
   audit_logs           audit_logs[]
   refresh_tokens       refresh_tokens[]
+  email_verification_tokens email_verification_tokens[]
 
   @@index([company_id], name: "idx_users_company")
   @@index([login_id], name: "idx_users_login_id")
@@ -332,4 +336,19 @@ model refresh_tokens {
   user       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id], name: "idx_refresh_tokens_user")
+}
+
+// ─── EMAIL VERIFICATION TOKENS (FR-1 — bootstrap admin email verification) ───
+
+model email_verification_tokens {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String   @db.Uuid
+  token_hash String
+  expires_at DateTime @db.Timestamptz()
+  used       Boolean  @default(false)
+  created_at DateTime @default(now()) @db.Timestamptz()
+
+  user       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], name: "idx_email_verification_tokens_user")
 }
