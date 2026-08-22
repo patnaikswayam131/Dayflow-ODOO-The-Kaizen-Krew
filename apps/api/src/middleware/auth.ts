@@ -90,3 +90,32 @@ export function requireOwnerOrRole(
     next();
   };
 }
+
+/**
+ * Convenience version of requireOwnerOrRole that extracts the user ID
+ * from req.params[paramName] automatically.
+ *
+ * Usage: router.get('/employees/:userId/attendance',
+ *   authenticate,
+ *   requireSelfOrRole('userId', [UserRole.ADMIN, UserRole.HR_OFFICER]),
+ *   handler
+ * )
+ */
+export function requireSelfOrRole(paramName: string, allowedRoles: UserRole[]) {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      throw new UnauthorizedError();
+    }
+
+    const resourceUserId = req.params[paramName];
+    const isOwner = req.user.userId === resourceUserId;
+    const hasRole = allowedRoles.includes(req.user.role as UserRole);
+
+    if (!isOwner && !hasRole) {
+      throw new ForbiddenError('You do not have permission to access this resource');
+    }
+
+    next();
+  };
+}
+

@@ -1,17 +1,9 @@
 import { Router } from 'express';
 import type { ApiResponse } from '@dayflow/shared';
-import {
-  bootstrap,
-  verifyEmail,
-  login,
-  logout,
-  refresh,
-} from '../controllers/auth.controller.js';
 
 // ─── Route Modules ───
-// Each developer implements their routes in their feature branch.
-// The skeleton routers below ensure the app compiles and routes exist
-// before feature code is written.
+import authRoutes from './auth.routes.js';
+import employeeRoutes from './employee.routes.js';
 
 const router = Router();
 
@@ -27,24 +19,11 @@ router.get('/health', (_req, res) => {
   res.json(response);
 });
 
-// ── Auth routes (Dev 1: feat/auth-foundation) ──
-const authRouter = Router();
-authRouter.post('/bootstrap', bootstrap);
-authRouter.get('/verify-email', verifyEmail);
-authRouter.post('/login', login);
-authRouter.post('/refresh', refresh);
-authRouter.post('/logout', logout);
-router.use('/auth', authRouter);
+// ── Auth routes (Dev 1: feat/auth-foundation) — IMPLEMENTED ──
+router.use('/auth', authRoutes);
 
-// ── Employee routes (Dev 2: feat/employee-profile) ──
-const employeeRouter = Router();
-employeeRouter.get('/', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/employee-profile', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
-router.use('/employees', employeeRouter);
+// ── Employee routes (Dev 1: POST /employees; Dev 2 will add GET/PUT profile routes) ──
+router.use('/employees', employeeRoutes);
 
 // ── Attendance routes (Dev 3: feat/attendance-leave) ──
 const attendanceRouter = Router();
