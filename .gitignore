@@ -37,3 +37,6 @@ coverage/
 # === Nested repository folder ===
 Dayflow-ODOO-The-Kaizen-Krew/
 
+# === SQLite Databases ===
+*.db
+*.db-journal

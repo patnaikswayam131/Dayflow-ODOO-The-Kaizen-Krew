@@ -4,6 +4,9 @@ import type { ApiResponse } from '@dayflow/shared';
 // ─── Route Modules ───
 import authRoutes from './auth.routes.js';
 import employeeRoutes from './employee.routes.js';
+import attendanceRoutes from './attendance.routes.js';
+import leaveRoutes from './leave.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
 
 const router = Router();
 
@@ -22,28 +25,17 @@ router.get('/health', (_req, res) => {
 // ── Auth routes (Dev 1: feat/auth-foundation) — IMPLEMENTED ──
 router.use('/auth', authRoutes);
 
-// ── Employee routes (Dev 1: POST /employees; Dev 2 will add GET/PUT profile routes) ──
+// ── Employee routes ──
 router.use('/employees', employeeRoutes);
 
-// ── Attendance routes (Dev 3: feat/attendance-leave) ──
-const attendanceRouter = Router();
-attendanceRouter.get('/', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/attendance-leave', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
-router.use('/attendance', attendanceRouter);
+// ── Attendance routes ──
+router.use('/attendance', attendanceRoutes);
 
-// ── Leave routes (Dev 3: feat/attendance-leave) ──
-const leaveRouter = Router();
-leaveRouter.get('/', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/attendance-leave', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
-router.use('/leave', leaveRouter);
+// ── Leave routes ──
+router.use('/leave', leaveRoutes);
+
+// ── Dashboard routes ──
+router.use('/dashboard', dashboardRoutes);
 
 // ── Salary routes (Dev 4: feat/salary-shell) ──
 const salaryRouter = Router();

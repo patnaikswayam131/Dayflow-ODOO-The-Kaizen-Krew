@@ -51,19 +51,26 @@ export async function generateLoginId(
   // RETURNING the value *before* increment (i.e. the current sequence to use).
   //
   // This is a parameterized query ($1, $2) — NOT string concatenation (Security Checklist #6).
-  const result = await (tx as unknown as PrismaClient).$queryRaw<
-    Array<{ current_seq: number }>
-  >(
-    Prisma.sql`
-      INSERT INTO login_id_sequences (company_id, joining_year, next_seq)
-      VALUES (${companyId}::uuid, ${joiningYear}::smallint, 2)
-      ON CONFLICT (company_id, joining_year)
-      DO UPDATE SET next_seq = login_id_sequences.next_seq + 1
-      RETURNING login_id_sequences.next_seq - 1 AS current_seq
-    `,
-  );
+  const sequence = await tx.login_id_sequences.upsert({
+    where: {
+      company_id_joining_year: {
+        company_id: companyId,
+        joining_year: joiningYear,
+      },
+    },
+    update: {
+      next_seq: { increment: 1 },
+    },
+    create: {
+      company_id: companyId,
+      joining_year: joiningYear,
+      next_seq: 2,
+    },
+  });
 
-  const seq = result[0]?.current_seq ?? 1;
+  // The upsert returns the NEW record (so next_seq is already incremented).
+  // The sequence number to use for this user is the returned next_seq - 1.
+  const seq = sequence.next_seq - 1;
 
   // Build the Login ID
   const nameChars = extractNameChars(firstName, 2) + extractNameChars(lastName, 2);
