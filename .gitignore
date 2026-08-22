@@ -1,0 +1,35 @@
+# === Environment ===
+.env
+.env.*
+!.env.example
+
+# === Dependencies ===
+node_modules/
+
+# === Build output ===
+dist/
+build/
+*.tsbuildinfo
+
+# === Prisma ===
+apps/api/prisma/migrations/
+
+# === Editor / OS ===
+.vscode/settings.json
+.vscode/*.code-workspace
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Logs ===
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# === Coverage / test ===
+coverage/
+.nyc_output/

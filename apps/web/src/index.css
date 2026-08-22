@@ -1,0 +1,156 @@
+/* ─── Tailwind Base ─── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design System Tokens (from design.md) ─── */
+/* These CSS custom properties provide a secondary access layer to the
+   design tokens beyond Tailwind classes. Useful for inline styles,
+   third-party component theming, and design-token documentation. */
+
+:root {
+  /* Colors */
+  --color-primary: #0064E0;
+  --color-primary-deep: #0457CB;
+  --color-primary-soft: #0091FF;
+  --color-on-primary: #FFFFFF;
+  --color-ink-button: #000000;
+  --color-on-ink-button: #FFFFFF;
+  --color-fb-blue: #1876F2;
+  --color-success: #31A24C;
+  --color-attention: #F2A918;
+  --color-warning: #F7B928;
+  --color-critical: #E41E3F;
+  --color-critical-strong: #F0284A;
+  --color-canvas: #FFFFFF;
+  --color-surface-soft: #F1F4F7;
+  --color-ink-deep: #0A1317;
+  --color-ink: #1C1E21;
+  --color-charcoal: #444950;
+  --color-slate: #4B4C4F;
+  --color-steel: #5D6C7B;
+  --color-stone: #8595A4;
+  --color-hairline: #CED0D4;
+  --color-hairline-soft: #DEE3E9;
+  --color-disabled-text: #BCC0C4;
+
+  /* Typography */
+  --font-display: 'Montserrat', 'Helvetica', 'Arial', 'Noto Sans', sans-serif;
+  --font-body: 'Montserrat', 'Helvetica', 'Arial', 'Noto Sans', sans-serif;
+
+  /* Transitions (design.md known gaps — recommended defaults) */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 250ms ease-out;
+  --transition-accordion: 300ms ease-in-out;
+}
+
+/* ─── Base Styles ─── */
+@layer base {
+  html {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background-color: var(--color-canvas);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  /* Focus ring for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-fb-blue);
+    outline-offset: 2px;
+  }
+
+  /* Remove default focus ring for mouse users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* ─── Component Layer ─── */
+@layer components {
+  /* Button: Primary (black pill — design.md button-primary) */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-ink-button text-white
+           text-button-md
+           rounded-full
+           px-[30px] py-[14px]
+           transition-colors duration-150 ease-out
+           disabled:bg-disabled-text disabled:cursor-not-allowed;
+  }
+  .btn-primary:active:not(:disabled) {
+    @apply bg-charcoal;
+  }
+
+  /* Button: Secondary (outlined pill — design.md button-secondary) */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-transparent text-ink-deep
+           text-button-md
+           rounded-full
+           px-[28px] py-[12px]
+           border-2 border-ink-deep
+           transition-colors duration-150 ease-out;
+  }
+
+  /* Button: Ghost (lighter outlined — design.md button-ghost) */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           bg-transparent text-ink-deep
+           text-button-md
+           rounded-full
+           px-[22px] py-[10px]
+           border-2 border-ink-deep/[0.12]
+           transition-colors duration-150 ease-out;
+  }
+
+  /* Card: Standard feature card */
+  .card {
+    @apply bg-canvas rounded-xl p-xxl border border-hairline-soft;
+  }
+
+  /* Card: With shadow (checkout-style) */
+  .card-elevated {
+    @apply bg-canvas rounded-xl p-xl-sp border border-hairline-soft shadow-sticky-panel;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center
+           text-caption-bold
+           rounded-full
+           px-[10px] py-[4px];
+  }
+  .badge-success {
+    @apply badge bg-success text-white;
+  }
+  .badge-critical {
+    @apply badge bg-critical text-white;
+  }
+  .badge-attention {
+    @apply badge bg-attention text-white;
+  }
+  .badge-warning {
+    @apply badge bg-warning text-ink-deep;
+  }
+
+  /* Input (design.md text-input) */
+  .input {
+    @apply w-full bg-canvas text-ink
+           text-body-md
+           rounded-lg
+           px-md-sp py-md-sp
+           border border-hairline
+           h-[44px]
+           transition-all duration-150 ease-out
+           focus:border-2 focus:border-fb-blue focus:outline-none;
+  }
+  .input-error {
+    @apply border-critical-strong;
+  }
+}

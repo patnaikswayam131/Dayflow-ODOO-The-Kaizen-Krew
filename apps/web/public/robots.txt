@@ -1,0 +1,9 @@
+# Dayflow HRMS - robots.txt
+# Security Checklist Part B #12: Deliberately allow public routes, block authenticated routes.
+
+User-agent: *
+Allow: /login
+Disallow: /app/
+Disallow: /api/
+
+Sitemap: /sitemap.xml

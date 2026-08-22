@@ -1,0 +1,22 @@
+# Dayflow — Human Resource Management System
+# Security Checklist Part B #11
+
+> Dayflow digitizes core HR operations for small and medium businesses.
+
+## What is Dayflow?
+
+Dayflow is an internal HR management tool covering:
+- Employee directory and profile management
+- Attendance tracking (check-in/check-out, work hours)
+- Leave/time-off request and approval workflows
+- Salary structure and payroll visibility
+
+## Access
+
+Dayflow is an authenticated, internal tool. Public access is limited to the login page.
+Employee accounts are created by Admin or HR Officers — there is no public self-registration.
+
+## Tech Stack
+
+- Frontend: React + TypeScript + Tailwind CSS
+- Backend: Node.js + Express + Prisma + PostgreSQL
