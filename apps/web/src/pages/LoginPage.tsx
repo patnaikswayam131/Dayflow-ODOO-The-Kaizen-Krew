@@ -8,7 +8,6 @@ export function LoginPage() {
   const { isBootstrapped, login, bootstrapCompany, user } = useAuth();
   const navigate = useNavigate();
 
-  // If already logged in, redirect to app
   if (user) {
     navigate('/app', { replace: true });
   }
@@ -42,7 +41,6 @@ export function LoginPage() {
       await login({ identifier, password });
       navigate('/app', { replace: true });
     } catch (err) {
-      // FR-2: Generic error message on failure — never reveal which field was wrong
       setLoginError((err as Error).message || 'Invalid credentials');
     } finally {
       setIsSubmitting(false);
@@ -81,287 +79,265 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas flex items-center justify-center p-xxl">
-      <div className="w-full max-w-[440px]">
-        {/* Header */}
-        <div className="text-center mb-xxl">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-ink-deep rounded-2xl mb-md">
-            <span className="text-white text-heading-md font-bold">D</span>
-          </div>
-          <h1 className="text-heading-lg text-ink-deep font-semibold">Dayflow</h1>
-          <p className="text-body-md text-steel mt-xxs">
-            {mode === 'BOOTSTRAP'
-              ? 'One-Time Company Setup'
-              : 'Sign in to access your HR workspace'}
-          </p>
-        </div>
-
-        {/* Card Container */}
-        <div className="card p-xxl shadow-sticky-panel">
+    <div className="min-h-screen bg-[#111111] flex flex-col items-center justify-center p-8 font-sans">
+      
+      <div className="w-full max-w-[480px]">
+        {/* Title / Form Title */}
+        <h2 className="text-white text-lg font-medium mb-4 pl-2 font-mono">
+          {mode === 'LOGIN' ? 'Sign in Page' : 'Sign Up Page'}
+        </h2>
+        
+        {/* Card */}
+        <div className="border border-[#333] rounded-lg p-8 bg-[#181818] shadow-2xl relative">
+          
           {verificationMsg ? (
-            <div className="text-center py-md">
-              <div className="text-heading-sm text-ink-deep font-medium mb-xs">
+            <div className="text-center py-8">
+              <div className="text-xl text-white font-medium mb-2">
                 Company Created Successfully! 🎉
               </div>
-              <p className="text-body-sm text-steel mb-base">{verificationMsg}</p>
+              <p className="text-gray-400 text-sm mb-6">{verificationMsg}</p>
               <button
                 type="button"
                 onClick={() => {
                   setVerificationMsg(null);
                   setMode('LOGIN');
                 }}
-                className="w-full py-base px-lg bg-ink-deep text-canvas text-body-sm-bold rounded-lg hover:bg-ink transition-colors"
+                className="w-full py-3 bg-[#A855F7] text-white font-semibold rounded-md hover:bg-[#9333EA] transition-colors"
               >
                 Proceed to Sign In
               </button>
             </div>
           ) : (
             <>
-              {/* ─── Mode Switcher ─── */}
-              <div className="flex bg-surface-soft p-1 rounded-lg mb-lg">
-                <button
-                  type="button"
-                  onClick={() => setMode('LOGIN')}
-                  className={`flex-1 py-xs text-body-sm-bold rounded-md transition-colors ${
-                    mode === 'LOGIN' ? 'bg-canvas text-ink shadow-sm' : 'text-steel hover:text-ink'
-                  }`}
-                >
-                  Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode('BOOTSTRAP')}
-                  className={`flex-1 py-xs text-body-sm-bold rounded-md transition-colors ${
-                    mode === 'BOOTSTRAP' ? 'bg-canvas text-ink shadow-sm' : 'text-steel hover:text-ink'
-                  }`}
-                >
-                  Initial Setup
-                </button>
+              {/* App Logo Area */}
+              <div className="flex justify-center mb-8">
+                <div className="w-full max-w-[240px] h-12 bg-[#222] rounded-md flex items-center justify-center border border-[#333]">
+                  <img src="/app-logo.png" alt="Dayflow Logo" className="h-8 object-contain opacity-80" />
+                </div>
               </div>
 
-              {mode === 'BOOTSTRAP' ? (
-                /* ─── Company Bootstrap Form (FR-1) ─── */
-                <form onSubmit={handleBootstrap} className="flex flex-col gap-base">
+              {mode === 'LOGIN' ? (
+                /* ─── Sign In Form ─── */
+                <form onSubmit={handleLogin} className="flex flex-col gap-6">
+                  {loginError && (
+                    <div className="p-3 bg-red-900/20 border border-red-500/50 text-red-400 text-sm rounded-md">
+                      {loginError}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Login Id/Email :-</label>
+                    <input
+                      type="text"
+                      required
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      className="flex-1 bg-transparent border border-[#555] rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#888] focus:ring-1 focus:ring-[#888]"
+                    />
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Password :-</label>
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="flex-1 bg-transparent border border-[#555] rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#888] focus:ring-1 focus:ring-[#888]"
+                    />
+                  </div>
+
+                  <div className="mt-2">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-2.5 bg-[#A855F7] text-white font-semibold rounded-md hover:bg-[#9333EA] transition-colors disabled:opacity-50"
+                    >
+                      {isSubmitting ? 'Signing in...' : 'SIGN IN'}
+                    </button>
+                  </div>
+
+                  <div className="text-center mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setMode('BOOTSTRAP')}
+                      className="text-gray-400 hover:text-white text-sm transition-colors"
+                    >
+                      Don't have an Account? Sign Up
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* ─── Sign Up Form ─── */
+                <form onSubmit={handleBootstrap} className="flex flex-col gap-5">
                   {isBootstrapped ? (
-                    <div className="p-base bg-surface-soft border border-hairline text-ink text-body-sm rounded-lg text-center">
-                      The system is already bootstrapped. You can only create one company per instance. Please use the Sign In tab.
+                    <div className="p-4 bg-surface-soft border border-hairline text-ink text-sm rounded-md text-center">
+                      The system is already bootstrapped. Please sign in instead.
                     </div>
                   ) : (
                     <>
                       {bootstrapError && (
-                        <div className="p-base bg-surface-soft border border-critical text-critical text-body-sm rounded-lg">
+                        <div className="p-3 bg-red-900/20 border border-red-500/50 text-red-400 text-sm rounded-md">
                           {bootstrapError}
                         </div>
                       )}
 
-                      <div>
-                        <label className="block text-body-sm-bold text-ink mb-xxs">
-                          Company Name <span className="text-critical">*</span>
-                        </label>
+                      <div className="flex flex-col sm:flex-row sm:items-center">
+                        <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Company Name :-</label>
                         <input
                           type="text"
                           required
                           value={companyName}
                           onChange={(e) => setCompanyName(e.target.value)}
-                          placeholder="e.g. Odoo India"
-                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                          className="flex-1 bg-transparent border-b border-[#555] px-2 py-1 text-white text-sm focus:outline-none focus:border-[#888]"
                         />
+                        <div className="hidden sm:flex ml-4 w-8 h-8 bg-blue-600 rounded items-center justify-center cursor-pointer hover:bg-blue-500 shrink-0" title="Upload Logo">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-body-sm-bold text-ink mb-xxs">
-                          Login Prefix (2-4 chars) <span className="text-critical">*</span>
-                        </label>
+                      <div className="flex flex-col sm:flex-row sm:items-center">
+                        <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Prefix :-</label>
                         <input
                           type="text"
                           required
                           maxLength={4}
                           value={loginPrefix}
                           onChange={(e) => setLoginPrefix(e.target.value.toUpperCase())}
-                          placeholder="e.g. OI"
-                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm uppercase focus:outline-none focus:border-ink"
+                          className="flex-1 bg-transparent border-b border-[#555] px-2 py-1 text-white text-sm uppercase focus:outline-none focus:border-[#888]"
                         />
-                        <span className="text-body-sm text-steel text-xs mt-xxs block">
-                          Used for generating employee Login IDs (e.g. OIJODO20220001)
-                        </span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-md">
-                        <div>
-                          <label className="block text-body-sm-bold text-ink mb-xxs">
-                            Admin First Name <span className="text-critical">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={adminFirstName}
-                            onChange={(e) => setAdminFirstName(e.target.value)}
-                            placeholder="John"
-                            className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-body-sm-bold text-ink mb-xxs">
-                            Admin Last Name <span className="text-critical">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={adminLastName}
-                            onChange={(e) => setAdminLastName(e.target.value)}
-                            placeholder="Doe"
-                            className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                          />
-                        </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center">
+                        <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">First Name :-</label>
+                        <input
+                          type="text"
+                          required
+                          value={adminFirstName}
+                          onChange={(e) => setAdminFirstName(e.target.value)}
+                          className="flex-1 bg-transparent border-b border-[#555] px-2 py-1 text-white text-sm focus:outline-none focus:border-[#888]"
+                        />
                       </div>
 
-                      <div>
-                        <label className="block text-body-sm-bold text-ink mb-xxs">
-                          Admin Work Email <span className="text-critical">*</span>
-                        </label>
+                      <div className="flex flex-col sm:flex-row sm:items-center">
+                        <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Last Name :-</label>
+                        <input
+                          type="text"
+                          required
+                          value={adminLastName}
+                          onChange={(e) => setAdminLastName(e.target.value)}
+                          className="flex-1 bg-transparent border-b border-[#555] px-2 py-1 text-white text-sm focus:outline-none focus:border-[#888]"
+                        />
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center">
+                        <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Email :-</label>
                         <input
                           type="email"
                           required
                           value={adminEmail}
                           onChange={(e) => setAdminEmail(e.target.value)}
-                          placeholder="admin@company.com"
-                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                          className="flex-1 bg-transparent border-b border-[#555] px-2 py-1 text-white text-sm focus:outline-none focus:border-[#888]"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-body-sm-bold text-ink mb-xxs">
-                          Admin Phone
-                        </label>
+                      <div className="flex flex-col sm:flex-row sm:items-center">
+                        <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Phone :-</label>
                         <input
                           type="tel"
                           value={adminPhone}
                           onChange={(e) => setAdminPhone(e.target.value)}
-                          placeholder="+91 9876543210"
-                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                          className="flex-1 bg-transparent border-b border-[#555] px-2 py-1 text-white text-sm focus:outline-none focus:border-[#888]"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-body-sm-bold text-ink mb-xxs">
-                          Password <span className="text-critical">*</span>
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          value={bootstrapPassword}
-                          onChange={(e) => setBootstrapPassword(e.target.value)}
-                          placeholder="Min 10 chars (upper, lower, num, symbol)"
-                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                        />
+                      <div className="flex flex-col sm:flex-row sm:items-center relative">
+                        <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Password :-</label>
+                        <div className="flex-1 flex">
+                          <input
+                            type="password"
+                            required
+                            value={bootstrapPassword}
+                            onChange={(e) => setBootstrapPassword(e.target.value)}
+                            className="w-full bg-transparent border-b border-[#555] px-2 py-1 text-white text-sm focus:outline-none focus:border-[#888]"
+                          />
+                        </div>
+                        <div className="hidden sm:flex ml-2 w-6 h-6 items-center justify-center shrink-0">
+                          <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-body-sm-bold text-ink mb-xxs">
-                          Confirm Password <span className="text-critical">*</span>
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="Re-enter password"
-                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                        />
+                      <div className="flex flex-col sm:flex-row sm:items-center relative">
+                        <label className="text-white text-sm w-[140px] shrink-0 mb-1 sm:mb-0">Confirm Password :-</label>
+                        <div className="flex-1 flex">
+                          <input
+                            type="password"
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full bg-transparent border-b border-[#555] px-2 py-1 text-white text-sm focus:outline-none focus:border-[#888]"
+                          />
+                        </div>
+                        <div className="hidden sm:flex ml-2 w-6 h-6 items-center justify-center shrink-0">
+                          <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
+                        </div>
                       </div>
 
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full py-base px-lg bg-ink-deep text-canvas text-body-sm-bold rounded-lg hover:bg-ink transition-colors disabled:opacity-50 mt-xs"
-                      >
-                        {isSubmitting ? 'Creating Company…' : 'Create Company & Admin Account'}
-                      </button>
+                      <div className="mt-4">
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full py-2.5 bg-[#A855F7] text-white font-semibold rounded-md hover:bg-[#9333EA] transition-colors disabled:opacity-50"
+                        >
+                          {isSubmitting ? 'Creating...' : 'Sign Up'}
+                        </button>
+                      </div>
+
+                      <div className="text-center mt-2">
+                        <button
+                          type="button"
+                          onClick={() => setMode('LOGIN')}
+                          className="text-gray-400 hover:text-white text-sm transition-colors"
+                        >
+                          Already have an account ? Sign In
+                        </button>
+                      </div>
                     </>
                   )}
                 </form>
-              ) : (
-                /* ─── Sign In Form (FR-2) ─── */
-                <div className="flex flex-col gap-base">
-                  <form onSubmit={handleLogin} className="flex flex-col gap-base">
-                    {loginError && (
-                      <div className="p-base bg-surface-soft border border-critical text-critical text-body-sm rounded-lg">
-                        {loginError}
-                      </div>
-                    )}
-
-                    <div>
-                      <label className="block text-body-sm-bold text-ink mb-xxs">
-                        Login ID or Email
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={identifier}
-                        onChange={(e) => setIdentifier(e.target.value)}
-                        placeholder="e.g. OIJODO20220001 or user@company.com"
-                        className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-body-sm-bold text-ink mb-xxs">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-base px-lg bg-ink-deep text-canvas text-body-sm-bold rounded-lg hover:bg-ink transition-colors disabled:opacity-50 mt-xs"
-                    >
-                      {isSubmitting ? 'Signing in…' : 'Sign In'}
-                    </button>
-                  </form>
-
-                  {/* Sample Credentials for the user */}
-                  <div className="mt-md p-base bg-surface-soft border border-hairline rounded-lg">
-                    <h3 className="text-body-sm-bold text-ink mb-xs">🔑 Demo Credentials</h3>
-                    <p className="text-body-sm text-steel mb-xs">Use these to test the application:</p>
-                    <div className="text-body-sm text-ink space-y-1">
-                      <div><strong>👑 Admin:</strong> admin@kaizen.com / AdminPassword1!</div>
-                      <div><strong>👤 Employee:</strong> employee@kaizen.com / EmployeePassword1!</div>
-                    </div>
-                    <div className="flex gap-md mt-xs">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIdentifier('admin@kaizen.com');
-                          setPassword('AdminPassword1!');
-                        }}
-                        className="text-brand text-body-sm hover:underline"
-                      >
-                        Auto-fill Admin
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIdentifier('employee@kaizen.com');
-                          setPassword('EmployeePassword1!');
-                        }}
-                        className="text-brand text-body-sm hover:underline"
-                      >
-                        Auto-fill Employee
-                      </button>
-                    </div>
-                  </div>
-                </div>
               )}
             </>
           )}
+
+          {/* Demo Credentials for ease of testing */}
+          {mode === 'LOGIN' && (
+            <div className="mt-8 pt-4 border-t border-[#333] text-gray-400 text-xs">
+              <p className="mb-2 text-gray-300">🔑 Quick Login (Demo):</p>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIdentifier('admin@dayflow.com');
+                    setPassword('AdminPassword1!');
+                  }}
+                  className="hover:text-white underline decoration-gray-600"
+                >
+                  Fill Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIdentifier('employee@dayflow.com');
+                    setPassword('EmployeePassword1!');
+                  }}
+                  className="hover:text-white underline decoration-gray-600"
+                >
+                  Fill Employee
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

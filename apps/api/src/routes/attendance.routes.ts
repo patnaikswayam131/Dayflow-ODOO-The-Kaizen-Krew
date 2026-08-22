@@ -18,7 +18,7 @@ router.get(
 
       const record = await prisma.attendance_records.findFirst({
         where: {
-          user_id: req.user!.id,
+          user_id: req.user!.userId,
           date: today
         }
       });
@@ -41,7 +41,7 @@ router.post(
       const now = new Date();
 
       let record = await prisma.attendance_records.findFirst({
-        where: { user_id: req.user!.id, date: today }
+        where: { user_id: req.user!.userId, date: today }
       });
 
       if (record && record.check_in_at) {
@@ -56,7 +56,7 @@ router.post(
       } else {
         record = await prisma.attendance_records.create({
           data: {
-            user_id: req.user!.id,
+            user_id: req.user!.userId,
             date: today,
             check_in_at: now,
             status: 'PRESENT'
@@ -82,7 +82,7 @@ router.post(
       const now = new Date();
 
       let record = await prisma.attendance_records.findFirst({
-        where: { user_id: req.user!.id, date: today }
+        where: { user_id: req.user!.userId, date: today }
       });
 
       if (!record || !record.check_in_at) {
@@ -119,7 +119,7 @@ router.get(
 
       const whereClause: any = {};
       if (!isAdminOrHR) {
-        whereClause.user_id = req.user!.id;
+        whereClause.user_id = req.user!.userId;
       } else {
         whereClause.user = { company_id: req.user!.companyId };
       }

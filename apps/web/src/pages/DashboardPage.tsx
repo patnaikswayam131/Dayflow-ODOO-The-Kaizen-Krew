@@ -13,7 +13,7 @@ export function DashboardPage() {
     <div>
       <div className="flex items-center justify-between mb-xxl">
         <h1 className="text-heading-lg text-ink-deep">
-          Welcome back, {user?.first_name || user?.firstName}!
+          Welcome back, {user?.firstName}!
         </h1>
       </div>
 
@@ -76,6 +76,7 @@ function EmployeeDashboard() {
   const [checkInTime, setCheckInTime] = useState<Date | null>(null);
   const [elapsed, setElapsed] = useState('00:00:00');
   const [loading, setLoading] = useState(true);
+  const [leaveBalances, setLeaveBalances] = useState<any[]>([]);
 
   useEffect(() => {
     // Fetch today's status
@@ -89,6 +90,13 @@ function EmployeeDashboard() {
       }
       setLoading(false);
     }).catch(() => setLoading(false));
+
+    // Fetch leave balances
+    api.get('/dashboard/employee-metrics').then((res: any) => {
+      if (res.success && res.data?.leaveBalances) {
+        setLeaveBalances(res.data.leaveBalances);
+      }
+    }).catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -156,21 +164,30 @@ function EmployeeDashboard() {
         <div className="card p-section">
           <h2 className="text-heading-sm text-ink-deep mb-base">Leave Balances</h2>
           <div className="space-y-sm">
-            <div className="flex justify-between items-center text-body-sm">
-              <span className="text-ink">Paid Time Off</span>
-              <span className="text-ink-deep font-bold">14 / 24 days</span>
-            </div>
-            <div className="w-full bg-surface-soft h-2 rounded-full overflow-hidden">
-              <div className="bg-brand h-full" style={{ width: '40%' }}></div>
-            </div>
+            {leaveBalances.map((balance: any, index: number) => {
+              const allocated = balance.allocated_days || 0;
+              const used = balance.used_days || 0;
+              const remaining = allocated - used;
+              const percent = allocated > 0 ? (used / allocated) * 100 : 0;
+              // Alternate colors for visually pleasing UI
+              const barColor = index % 2 === 0 ? 'bg-brand' : 'bg-success';
+              
+              return (
+                <div key={index} className="mb-sm">
+                  <div className="flex justify-between items-center text-body-sm">
+                    <span className="text-ink">{balance.leave_type?.name}</span>
+                    <span className="text-ink-deep font-bold">{remaining} / {allocated} days</span>
+                  </div>
+                  <div className="w-full bg-surface-soft h-2 rounded-full overflow-hidden mt-xxs">
+                    <div className={`${barColor} h-full`} style={{ width: `${percent}%` }}></div>
+                  </div>
+                </div>
+              );
+            })}
             
-            <div className="flex justify-between items-center text-body-sm mt-xs">
-              <span className="text-ink">Sick Leave</span>
-              <span className="text-ink-deep font-bold">5 / 7 days</span>
-            </div>
-            <div className="w-full bg-surface-soft h-2 rounded-full overflow-hidden">
-              <div className="bg-success h-full" style={{ width: '28%' }}></div>
-            </div>
+            {leaveBalances.length === 0 && (
+              <div className="text-body-sm text-steel">No leave balances found.</div>
+            )}
           </div>
         </div>
       </div>

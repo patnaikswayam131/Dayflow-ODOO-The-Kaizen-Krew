@@ -67,4 +67,40 @@ router.get(
   }
 );
 
+// ─── GET /dashboard/employee-metrics ───
+// Authenticated: All
+router.get(
+  '/employee-metrics',
+  authenticate,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const currentYear = new Date().getFullYear();
+      const balances = await prisma.leave_balances.findMany({
+        where: { user_id: req.user!.userId, year: currentYear },
+        include: { leave_type: true }
+      });
+      
+      // Since seeding leave balances for every user is complex, we'll return a calculated state
+      // or default balances based on the company's leave types if none exist.
+      if (balances.length === 0) {
+        const leaveTypes = await prisma.leave_types.findMany({
+          where: { company_id: req.user!.companyId }
+        });
+        
+        const defaultBalances = leaveTypes.map(lt => ({
+          leave_type: { name: lt.name },
+          allocated_days: lt.default_allocation_days,
+          used_days: 0
+        }));
+        
+        return res.json({ success: true, data: { leaveBalances: defaultBalances } });
+      }
+
+      res.json({ success: true, data: { leaveBalances: balances } });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 export default router;

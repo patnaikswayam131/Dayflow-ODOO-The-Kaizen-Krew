@@ -44,7 +44,7 @@ export function ProfilePage() {
 
   // Safety fallback if activeTab is hidden
   if (!availableTabs.includes(activeTab)) {
-    setActiveTab(availableTabs[0]);
+    setActiveTab(availableTabs[0] as string);
   }
 
   if (loading) return <div className="p-xl-sp text-center text-steel">Loading profile...</div>;

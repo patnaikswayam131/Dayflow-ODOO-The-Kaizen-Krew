@@ -17,35 +17,35 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const MOCK_ADMIN: AuthUser = {
   id: 'mock-admin-001',
   loginId: 'KKADUS20260001',
-  email: 'admin@kaizen.com',
+  email: 'admin@dayflow.com',
   firstName: 'Admin',
   lastName: 'User',
   role: 'ADMIN',
   avatarUrl: null,
   mustChangePassword: false,
   companyId: 'mock-company-001',
-  companyName: 'Kaizen Krew',
+  companyName: 'Dayflow',
   companyLogoUrl: null,
 };
 
 const MOCK_EMPLOYEE: AuthUser = {
   id: 'mock-emp-001',
   loginId: 'KKJODO20260001',
-  email: 'employee@kaizen.com',
+  email: 'employee@dayflow.com',
   firstName: 'John',
   lastName: 'Doe',
   role: 'EMPLOYEE',
   avatarUrl: null,
   mustChangePassword: false,
   companyId: 'mock-company-001',
-  companyName: 'Kaizen Krew',
+  companyName: 'Dayflow',
   companyLogoUrl: null,
 };
 
 const MOCK_CREDENTIALS: Record<string, { password: string; user: AuthUser }> = {
-  'admin@kaizen.com': { password: 'AdminPassword1!', user: MOCK_ADMIN },
+  'admin@dayflow.com': { password: 'AdminPassword1!', user: MOCK_ADMIN },
   'KKADUS20260001': { password: 'AdminPassword1!', user: MOCK_ADMIN },
-  'employee@kaizen.com': { password: 'EmployeePassword1!', user: MOCK_EMPLOYEE },
+  'employee@dayflow.com': { password: 'EmployeePassword1!', user: MOCK_EMPLOYEE },
   'KKJODO20260001': { password: 'EmployeePassword1!', user: MOCK_EMPLOYEE },
 };
 

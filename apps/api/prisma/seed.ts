@@ -34,8 +34,8 @@ async function main() {
     // 1. Create company
     const company = await tx.companies.create({
       data: {
-        name: 'Kaizen Krew',
-        login_prefix: 'KK',
+        name: 'Dayflow',
+        login_prefix: 'DF',
       },
     });
 
@@ -82,7 +82,7 @@ async function main() {
         company_id: company.id,
         login_id: adminLoginId,
         emp_code: adminEmpCode,
-        email: 'admin@kaizen.com',
+        email: 'admin@dayflow.com',
         password_hash: adminPasswordHash,
         must_change_password: false,
         role: 'ADMIN',
@@ -110,7 +110,7 @@ async function main() {
         company_id: company.id,
         login_id: empLoginId,
         emp_code: empEmpCode,
-        email: 'employee@kaizen.com',
+        email: 'employee@dayflow.com',
         password_hash: employeePasswordHash,
         must_change_password: false,
         role: 'EMPLOYEE',
@@ -128,7 +128,7 @@ async function main() {
   console.log('\n=============================================');
   console.log('✅ Seed successful! Database populated.');
   console.log('=============================================');
-  console.log('\n🏢 Company: Kaizen Krew');
+  console.log('\n🏢 Company: Dayflow');
   
   console.log('\n👑 ADMIN Credentials:');
   console.log(`   Login ID : ${result.admin.login_id}`);

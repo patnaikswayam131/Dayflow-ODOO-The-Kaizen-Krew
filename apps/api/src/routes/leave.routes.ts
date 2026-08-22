@@ -16,7 +16,7 @@ router.get(
 
       const whereClause: any = {};
       if (!isAdminOrHR) {
-        whereClause.user_id = req.user!.id;
+        whereClause.user_id = req.user!.userId;
       } else {
         whereClause.user = { company_id: req.user!.companyId };
       }
@@ -61,7 +61,7 @@ router.post(
 
       const request = await prisma.leave_requests.create({
         data: {
-          user_id: req.user!.id,
+          user_id: req.user!.userId,
           leave_type_id: leaveType.id,
           start_date: new Date(startDate),
           end_date: new Date(endDate),
@@ -90,13 +90,13 @@ router.patch(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { status } = req.body;
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       const request = await prisma.leave_requests.update({
         where: { id },
         data: { 
           status,
-          reviewed_by: req.user!.id,
+          reviewed_by: req.user!.userId,
           reviewed_at: new Date()
         },
         include: {

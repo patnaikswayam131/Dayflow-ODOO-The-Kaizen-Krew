@@ -28,7 +28,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const isCheckedIn = false; // Attendance state will be driven by Attendance module
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
 
   const handleLogout = async () => {
@@ -70,23 +69,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           {/* Right: Status dot + Avatar dropdown */}
           <div className="flex items-center gap-md-sp">
-            {/* Check-in status dot (FR-8) */}
-            <button
-              className="flex items-center gap-xxs text-body-sm text-steel"
-              aria-label={isCheckedIn ? 'Checked in' : 'Not checked in'}
-              title={isCheckedIn ? 'Checked in today' : 'Not checked in today'}
-            >
-              <span
-                className={`inline-block w-[10px] h-[10px] rounded-full ${
-                  isCheckedIn ? 'bg-success' : 'bg-critical'
-                }`}
-                role="status"
-                aria-live="polite"
-              />
-              <span className="hidden md:inline">
-                {isCheckedIn ? 'Checked in' : 'Not checked in'}
-              </span>
-            </button>
+
 
             {/* Avatar Dropdown */}
             <div className="relative" ref={dropdownRef}>

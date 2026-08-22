@@ -7,6 +7,7 @@ import employeeRoutes from './employee.routes.js';
 import attendanceRoutes from './attendance.routes.js';
 import leaveRoutes from './leave.routes.js';
 import dashboardRoutes from './dashboard.routes.js';
+import salaryRoutes from './salary.routes.js';
 
 const router = Router();
 
@@ -38,13 +39,6 @@ router.use('/leave', leaveRoutes);
 router.use('/dashboard', dashboardRoutes);
 
 // ── Salary routes (Dev 4: feat/salary-shell) ──
-const salaryRouter = Router();
-salaryRouter.get('/', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/salary-shell', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
-router.use('/salary', salaryRouter);
+router.use('/salary', salaryRoutes);
 
 export default router;
