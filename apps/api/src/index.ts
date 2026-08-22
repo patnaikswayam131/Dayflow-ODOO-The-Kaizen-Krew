@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
+import path from 'path';
 import { secureHeaders } from './middleware/helmet.js';
 import { createCorsMiddleware } from './middleware/cors.js';
 import { mutationRateLimiter, authRateLimiter } from './middleware/rateLimiter.js';
@@ -10,6 +11,9 @@ import routes from './routes/index.js';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
+
+// Serve static uploaded files (Security Checklist #20)
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // ─── Security Middleware Pipeline ───
 // Order matters: headers → CORS → rate limit → body parsing → routes → error handler

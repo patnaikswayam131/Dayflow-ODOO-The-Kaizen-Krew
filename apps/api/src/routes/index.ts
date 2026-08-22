@@ -1,5 +1,12 @@
 import { Router } from 'express';
 import type { ApiResponse } from '@dayflow/shared';
+import {
+  bootstrap,
+  verifyEmail,
+  login,
+  logout,
+  refresh,
+} from '../controllers/auth.controller.js';
 
 // ─── Route Modules ───
 // Each developer implements their routes in their feature branch.
@@ -22,30 +29,11 @@ router.get('/health', (_req, res) => {
 
 // ── Auth routes (Dev 1: feat/auth-foundation) ──
 const authRouter = Router();
-authRouter.post('/login', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/auth-foundation', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
-authRouter.post('/bootstrap', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/auth-foundation', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
-authRouter.post('/logout', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/auth-foundation', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
-authRouter.post('/refresh', (_req, res) => {
-  res.status(501).json({
-    success: false,
-    error: { message: 'Not implemented — see feat/auth-foundation', code: 'NOT_IMPLEMENTED' },
-  } satisfies ApiResponse);
-});
+authRouter.post('/bootstrap', bootstrap);
+authRouter.get('/verify-email', verifyEmail);
+authRouter.post('/login', login);
+authRouter.post('/refresh', refresh);
+authRouter.post('/logout', logout);
 router.use('/auth', authRouter);
 
 // ── Employee routes (Dev 2: feat/employee-profile) ──

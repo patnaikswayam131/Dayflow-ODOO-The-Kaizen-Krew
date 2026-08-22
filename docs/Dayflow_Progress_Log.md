@@ -6,8 +6,8 @@ Update this on every meaningful commit or work session (not every single commit 
 
 | Date | Time | Author | Phase | Module | Summary | Branch / Commit | Status |
 |---|---|---|---|---|---|---|---|
-| | | | 0 — Kickoff | Planning | Team aligned on stack (React/Vite/TS + Express/Fastify + Prisma + Postgres), reviewed SRS and schema together, branch names assigned | `main` | ✅ Done |
-| | | Dev 1 | 1 — Foundation | Auth/RBAC | | | ☐ In progress |
+| 2026-08-22 | 11:19 AM | All | 0 — Kickoff | Planning | Team aligned on stack (React/Vite/TS + Express/Fastify + Prisma + Postgres), reviewed SRS and schema together, branch names assigned | `main` | ✅ Done |
+| 2026-08-22 | 12:48 PM | Dev 1 | 1 — Foundation | Auth/RBAC | Implemented company/admin bootstrap (FR-1) with email verify link, rate limiters, secure cookie JWT authentication (FR-2, FR-5), secure password generator/policy (FR-4), and transaction-locked sequential login ID generator (FR-3). Created native node:test unit suites. | `feat/auth-foundation` | ✅ Done |
 | | | Dev 2 | 1/2 — Employee | | | | ☐ Not started |
 | | | Dev 3 | 1/2 — Attendance/Leave | | | | ☐ Not started |
 | | | Dev 4 | 1/2 — Salary/Shell | | | | ☐ Not started |
