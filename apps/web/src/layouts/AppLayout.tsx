@@ -1,21 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * AppLayout — Persistent top navigation bar (FR-7).
  *
  * Company Logo | Employees | Attendance | Time Off | Check-in status dot | Avatar dropdown
- *
- * Design tokens from design.md:
- * - Nav bar: white canvas, 64px height, bottom 1px hairline-soft border
- * - Active tab: ink-deep bg, canvas text (button-pill-tab-active)
- * - Inactive tab: canvas bg, ink text, hairline border (button-pill-tab)
- * - Avatar dropdown: card-elevated style
  */
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -30,9 +28,18 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // TODO: Replace with actual auth state from context/store
-  const isCheckedIn = false;
+  const isCheckedIn = false; // Attendance state will be driven by Attendance module
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+
+  const handleLogout = async () => {
+    setIsDropdownOpen(false);
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
+  const userInitials = user
+    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+    : 'U';
 
   return (
     <div className="min-h-screen bg-surface-soft">
@@ -43,12 +50,14 @@ export function AppLayout({ children }: AppLayoutProps) {
       >
         <nav className="h-full max-w-[1280px] mx-auto px-xxl flex items-center justify-between">
           {/* Left: Company Logo */}
-          <a href="/" className="flex items-center gap-xs" aria-label="Dayflow Home">
+          <a href="/app" className="flex items-center gap-xs" aria-label="Dayflow Home">
             <div className="w-8 h-8 bg-ink-deep rounded-lg flex items-center justify-center">
-              <span className="text-white text-body-sm-bold">D</span>
+              <span className="text-white text-body-sm-bold">
+                {user?.companyName?.charAt(0) || 'D'}
+              </span>
             </div>
             <span className="text-heading-sm text-ink-deep font-medium hidden sm:block">
-              Dayflow
+              {user?.companyName || 'Dayflow'}
             </span>
           </a>
 
@@ -83,22 +92,39 @@ export function AppLayout({ children }: AppLayoutProps) {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-[40px] h-[40px] rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-body-sm-bold text-steel transition-colors"
+                className="w-[40px] h-[40px] rounded-full bg-ink-deep text-canvas flex items-center justify-center text-body-sm-bold transition-transform hover:scale-105"
                 aria-expanded={isDropdownOpen}
                 aria-haspopup="true"
                 aria-label="User menu"
               >
-                {/* TODO: Replace with actual user avatar */}
-                <span aria-hidden="true">👤</span>
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={`${user.firstName} ${user.lastName}`}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span>{userInitials}</span>
+                )}
               </button>
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div
-                  className="absolute right-0 top-[48px] w-[200px] bg-canvas rounded-xl border border-hairline-soft shadow-sticky-panel py-xs"
+                  className="absolute right-0 top-[48px] w-[220px] bg-canvas rounded-xl border border-hairline-soft shadow-sticky-panel py-xs z-50"
                   role="menu"
                   aria-label="User menu options"
                 >
+                  <div className="px-base py-xs border-b border-hairline-soft mb-xs">
+                    <div className="text-body-sm-bold text-ink-deep truncate">
+                      {user?.firstName} {user?.lastName}
+                    </div>
+                    <div className="text-body-xs text-steel truncate">{user?.email}</div>
+                    <div className="text-body-xs text-stone font-mono mt-xxs">
+                      ID: {user?.loginId} ({user?.role})
+                    </div>
+                  </div>
+
                   <a
                     href="/app/profile"
                     className="block px-base py-xs text-body-sm text-ink hover:bg-surface-soft transition-colors"
@@ -106,14 +132,13 @@ export function AppLayout({ children }: AppLayoutProps) {
                   >
                     My Profile
                   </a>
+
                   <hr className="my-xs border-hairline-soft" />
+
                   <button
-                    className="w-full text-left px-base py-xs text-body-sm text-critical hover:bg-surface-soft transition-colors"
+                    className="w-full text-left px-base py-xs text-body-sm text-critical hover:bg-surface-soft transition-colors font-medium"
                     role="menuitem"
-                    onClick={() => {
-                      // TODO: Implement logout via auth context
-                      console.warn('Logout not yet implemented');
-                    }}
+                    onClick={handleLogout}
                   >
                     Log Out
                   </button>

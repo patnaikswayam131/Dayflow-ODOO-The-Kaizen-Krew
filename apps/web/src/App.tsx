@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppLayout } from './layouts/AppLayout';
 
 // ─── Route-based code splitting (Security Checklist Part B #19) ───
@@ -46,42 +47,82 @@ function PageLoader() {
   );
 }
 
+// ─── Protected Route Wrapper ───
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+// ─── Public Only Route Wrapper (e.g. /login when already logged in) ───
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (user) {
+    return <Navigate to="/app" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<LoginPage />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public routes */}
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LoginPage />
+                  </PublicRoute>
+                }
+              />
 
-            {/* Authenticated routes (wrapped in AppLayout shell) */}
-            {/* TODO: Add ProtectedRoute wrapper that checks auth state */}
-            <Route
-              path="/app"
-              element={
-                <AppLayout>
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route index element={<DashboardPage />} />
-                      <Route path="employees/*" element={<EmployeesPage />} />
-                      <Route path="attendance/*" element={<AttendancePage />} />
-                      <Route path="time-off/*" element={<TimeOffPage />} />
-                      <Route path="profile/*" element={<ProfilePage />} />
-                    </Routes>
-                  </Suspense>
-                </AppLayout>
-              }
-            />
+              {/* Authenticated routes (wrapped in AppLayout shell) */}
+              <Route
+                path="/app/*"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Suspense fallback={<PageLoader />}>
+                        <Routes>
+                          <Route index element={<DashboardPage />} />
+                          <Route path="employees/*" element={<EmployeesPage />} />
+                          <Route path="attendance/*" element={<AttendancePage />} />
+                          <Route path="time-off/*" element={<TimeOffPage />} />
+                          <Route path="profile/*" element={<ProfilePage />} />
+                        </Routes>
+                      </Suspense>
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Redirects */}
-            <Route path="/" element={<Navigate to="/app" replace />} />
+              {/* Redirects */}
+              <Route path="/" element={<Navigate to="/app" replace />} />
 
-            {/* 404 catch-all (Security Checklist Part B #2) */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
+              {/* 404 catch-all */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
