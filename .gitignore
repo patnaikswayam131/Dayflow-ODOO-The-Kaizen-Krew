@@ -33,3 +33,7 @@ pnpm-debug.log*
 # === Coverage / test ===
 coverage/
 .nyc_output/
+
+# === Nested repository folder ===
+Dayflow-ODOO-The-Kaizen-Krew/
+

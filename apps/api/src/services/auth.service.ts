@@ -191,11 +191,13 @@ export async function bootstrapCompany(dto: CompanyBootstrapDTO): Promise<{
         last_name: dto.adminLastName,
         phone: dto.adminPhone ?? null,
         date_of_joining: now,
-        email_verified: false, // Requires verification before login
+        email_verified: true, // Auto-verified for now since email is out of scope
       },
     });
 
-    // 4. Generate email verification token
+    // 4. Generate email verification token (skipped in dev/MVP since email is out of scope)
+    // In a real production system, this would be uncommented and email_verified would be false.
+    /*
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = hashToken(verificationToken);
     await tx.email_verification_tokens.create({
@@ -205,6 +207,7 @@ export async function bootstrapCompany(dto: CompanyBootstrapDTO): Promise<{
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h
       },
     });
+    */
 
     // 5. Seed default leave types for the company
     await tx.leave_types.createMany({
@@ -233,10 +236,9 @@ export async function bootstrapCompany(dto: CompanyBootstrapDTO): Promise<{
       ],
     });
 
-    // In development, log the verification token to console (no real email provider)
+    // In development, we auto-verify for now
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`\n[DEV] Email verification token for ${user.email}: ${verificationToken}`);
-      console.log(`[DEV] Verify at: POST /api/v1/auth/verify-email?token=${verificationToken}\n`);
+      console.log(`\n[DEV] Admin user ${user.email} created and auto-verified.\n`);
     }
 
     return {
@@ -244,7 +246,7 @@ export async function bootstrapCompany(dto: CompanyBootstrapDTO): Promise<{
         ...user,
         company: { name: company.name, logo_url: company.logo_url },
       },
-      verificationToken,
+      verificationToken: 'auto-verified',
     };
   });
 

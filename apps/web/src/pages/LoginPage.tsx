@@ -80,8 +80,6 @@ export function LoginPage() {
     }
   };
 
-  const showBootstrapForm = isBootstrapped === false || mode === 'BOOTSTRAP';
-
   return (
     <div className="min-h-screen bg-canvas flex items-center justify-center p-xxl">
       <div className="w-full max-w-[440px]">
@@ -92,8 +90,8 @@ export function LoginPage() {
           </div>
           <h1 className="text-heading-lg text-ink-deep font-semibold">Dayflow</h1>
           <p className="text-body-md text-steel mt-xxs">
-            {showBootstrapForm
-              ? 'One-Time Company Setup (Bootstrap)'
+            {mode === 'BOOTSTRAP'
+              ? 'One-Time Company Setup'
               : 'Sign in to access your HR workspace'}
           </p>
         </div>
@@ -117,194 +115,252 @@ export function LoginPage() {
                 Proceed to Sign In
               </button>
             </div>
-          ) : showBootstrapForm ? (
-            /* ─── Company Bootstrap Form (FR-1) ─── */
-            <form onSubmit={handleBootstrap} className="flex flex-col gap-base">
-              {bootstrapError && (
-                <div className="p-base bg-surface-soft border border-critical text-critical text-body-sm rounded-lg">
-                  {bootstrapError}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-body-sm-bold text-ink mb-xxs">
-                  Company Name <span className="text-critical">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="e.g. Odoo India"
-                  className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                />
-              </div>
-
-              <div>
-                <label className="block text-body-sm-bold text-ink mb-xxs">
-                  Login Prefix (2-4 chars) <span className="text-critical">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  maxLength={4}
-                  value={loginPrefix}
-                  onChange={(e) => setLoginPrefix(e.target.value.toUpperCase())}
-                  placeholder="e.g. OI"
-                  className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm uppercase focus:outline-none focus:border-ink"
-                />
-                <span className="text-body-sm text-steel text-xs mt-xxs block">
-                  Used for generating employee Login IDs (e.g. OIJODO20220001)
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-md">
-                <div>
-                  <label className="block text-body-sm-bold text-ink mb-xxs">
-                    Admin First Name <span className="text-critical">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={adminFirstName}
-                    onChange={(e) => setAdminFirstName(e.target.value)}
-                    placeholder="John"
-                    className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                  />
-                </div>
-                <div>
-                  <label className="block text-body-sm-bold text-ink mb-xxs">
-                    Admin Last Name <span className="text-critical">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={adminLastName}
-                    onChange={(e) => setAdminLastName(e.target.value)}
-                    placeholder="Doe"
-                    className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-body-sm-bold text-ink mb-xxs">
-                  Admin Work Email <span className="text-critical">*</span>
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="admin@company.com"
-                  className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                />
-              </div>
-
-              <div>
-                <label className="block text-body-sm-bold text-ink mb-xxs">
-                  Admin Phone
-                </label>
-                <input
-                  type="tel"
-                  value={adminPhone}
-                  onChange={(e) => setAdminPhone(e.target.value)}
-                  placeholder="+91 9876543210"
-                  className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                />
-              </div>
-
-              <div>
-                <label className="block text-body-sm-bold text-ink mb-xxs">
-                  Password <span className="text-critical">*</span>
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={bootstrapPassword}
-                  onChange={(e) => setBootstrapPassword(e.target.value)}
-                  placeholder="Min 10 chars (upper, lower, num, symbol)"
-                  className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                />
-              </div>
-
-              <div>
-                <label className="block text-body-sm-bold text-ink mb-xxs">
-                  Confirm Password <span className="text-critical">*</span>
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter password"
-                  className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-base px-lg bg-ink-deep text-canvas text-body-sm-bold rounded-lg hover:bg-ink transition-colors disabled:opacity-50 mt-xs"
-              >
-                {isSubmitting ? 'Creating Company…' : 'Create Company & Admin Account'}
-              </button>
-
-              {isBootstrapped && (
+          ) : (
+            <>
+              {/* ─── Mode Switcher ─── */}
+              <div className="flex bg-surface-soft p-1 rounded-lg mb-lg">
                 <button
                   type="button"
                   onClick={() => setMode('LOGIN')}
-                  className="text-body-sm text-steel hover:text-ink text-center mt-xs"
+                  className={`flex-1 py-xs text-body-sm-bold rounded-md transition-colors ${
+                    mode === 'LOGIN' ? 'bg-canvas text-ink shadow-sm' : 'text-steel hover:text-ink'
+                  }`}
                 >
-                  Already set up? Back to Sign In
+                  Sign In
                 </button>
-              )}
-            </form>
-          ) : (
-            /* ─── Sign In Form (FR-2) ─── */
-            <form onSubmit={handleLogin} className="flex flex-col gap-base">
-              {loginError && (
-                <div className="p-base bg-surface-soft border border-critical text-critical text-body-sm rounded-lg">
-                  {loginError}
+                <button
+                  type="button"
+                  onClick={() => setMode('BOOTSTRAP')}
+                  className={`flex-1 py-xs text-body-sm-bold rounded-md transition-colors ${
+                    mode === 'BOOTSTRAP' ? 'bg-canvas text-ink shadow-sm' : 'text-steel hover:text-ink'
+                  }`}
+                >
+                  Initial Setup
+                </button>
+              </div>
+
+              {mode === 'BOOTSTRAP' ? (
+                /* ─── Company Bootstrap Form (FR-1) ─── */
+                <form onSubmit={handleBootstrap} className="flex flex-col gap-base">
+                  {isBootstrapped ? (
+                    <div className="p-base bg-surface-soft border border-hairline text-ink text-body-sm rounded-lg text-center">
+                      The system is already bootstrapped. You can only create one company per instance. Please use the Sign In tab.
+                    </div>
+                  ) : (
+                    <>
+                      {bootstrapError && (
+                        <div className="p-base bg-surface-soft border border-critical text-critical text-body-sm rounded-lg">
+                          {bootstrapError}
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-body-sm-bold text-ink mb-xxs">
+                          Company Name <span className="text-critical">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          placeholder="e.g. Odoo India"
+                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-body-sm-bold text-ink mb-xxs">
+                          Login Prefix (2-4 chars) <span className="text-critical">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={4}
+                          value={loginPrefix}
+                          onChange={(e) => setLoginPrefix(e.target.value.toUpperCase())}
+                          placeholder="e.g. OI"
+                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm uppercase focus:outline-none focus:border-ink"
+                        />
+                        <span className="text-body-sm text-steel text-xs mt-xxs block">
+                          Used for generating employee Login IDs (e.g. OIJODO20220001)
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-md">
+                        <div>
+                          <label className="block text-body-sm-bold text-ink mb-xxs">
+                            Admin First Name <span className="text-critical">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={adminFirstName}
+                            onChange={(e) => setAdminFirstName(e.target.value)}
+                            placeholder="John"
+                            className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-body-sm-bold text-ink mb-xxs">
+                            Admin Last Name <span className="text-critical">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={adminLastName}
+                            onChange={(e) => setAdminLastName(e.target.value)}
+                            placeholder="Doe"
+                            className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-body-sm-bold text-ink mb-xxs">
+                          Admin Work Email <span className="text-critical">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={adminEmail}
+                          onChange={(e) => setAdminEmail(e.target.value)}
+                          placeholder="admin@company.com"
+                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-body-sm-bold text-ink mb-xxs">
+                          Admin Phone
+                        </label>
+                        <input
+                          type="tel"
+                          value={adminPhone}
+                          onChange={(e) => setAdminPhone(e.target.value)}
+                          placeholder="+91 9876543210"
+                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-body-sm-bold text-ink mb-xxs">
+                          Password <span className="text-critical">*</span>
+                        </label>
+                        <input
+                          type="password"
+                          required
+                          value={bootstrapPassword}
+                          onChange={(e) => setBootstrapPassword(e.target.value)}
+                          placeholder="Min 10 chars (upper, lower, num, symbol)"
+                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-body-sm-bold text-ink mb-xxs">
+                          Confirm Password <span className="text-critical">*</span>
+                        </label>
+                        <input
+                          type="password"
+                          required
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Re-enter password"
+                          className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full py-base px-lg bg-ink-deep text-canvas text-body-sm-bold rounded-lg hover:bg-ink transition-colors disabled:opacity-50 mt-xs"
+                      >
+                        {isSubmitting ? 'Creating Company…' : 'Create Company & Admin Account'}
+                      </button>
+                    </>
+                  )}
+                </form>
+              ) : (
+                /* ─── Sign In Form (FR-2) ─── */
+                <div className="flex flex-col gap-base">
+                  <form onSubmit={handleLogin} className="flex flex-col gap-base">
+                    {loginError && (
+                      <div className="p-base bg-surface-soft border border-critical text-critical text-body-sm rounded-lg">
+                        {loginError}
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-body-sm-bold text-ink mb-xxs">
+                        Login ID or Email
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
+                        placeholder="e.g. OIJODO20220001 or user@company.com"
+                        className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-body-sm-bold text-ink mb-xxs">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-base px-lg bg-ink-deep text-canvas text-body-sm-bold rounded-lg hover:bg-ink transition-colors disabled:opacity-50 mt-xs"
+                    >
+                      {isSubmitting ? 'Signing in…' : 'Sign In'}
+                    </button>
+                  </form>
+
+                  {/* Sample Credentials for the user */}
+                  <div className="mt-md p-base bg-surface-soft border border-hairline rounded-lg">
+                    <h3 className="text-body-sm-bold text-ink mb-xs">🔑 Demo Credentials</h3>
+                    <p className="text-body-sm text-steel mb-xs">Use these to test the application:</p>
+                    <div className="text-body-sm text-ink space-y-1">
+                      <div><strong>👑 Admin:</strong> admin@kaizen.com / AdminPassword1!</div>
+                      <div><strong>👤 Employee:</strong> employee@kaizen.com / EmployeePassword1!</div>
+                    </div>
+                    <div className="flex gap-md mt-xs">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIdentifier('admin@kaizen.com');
+                          setPassword('AdminPassword1!');
+                        }}
+                        className="text-brand text-body-sm hover:underline"
+                      >
+                        Auto-fill Admin
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIdentifier('employee@kaizen.com');
+                          setPassword('EmployeePassword1!');
+                        }}
+                        className="text-brand text-body-sm hover:underline"
+                      >
+                        Auto-fill Employee
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
-
-              <div>
-                <label className="block text-body-sm-bold text-ink mb-xxs">
-                  Login ID or Email
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="e.g. OIJODO20220001 or user@company.com"
-                  className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                />
-              </div>
-
-              <div>
-                <label className="block text-body-sm-bold text-ink mb-xxs">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full px-base py-xs border border-hairline rounded-lg text-body-sm focus:outline-none focus:border-ink"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-base px-lg bg-ink-deep text-canvas text-body-sm-bold rounded-lg hover:bg-ink transition-colors disabled:opacity-50 mt-xs"
-              >
-                {isSubmitting ? 'Signing in…' : 'Sign In'}
-              </button>
-            </form>
+            </>
           )}
         </div>
       </div>
