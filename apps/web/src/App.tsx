@@ -1,14 +1,16 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { UserRole } from '@dayflow/shared';
 import { AppLayout } from './layouts/AppLayout';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // ─── Route-based code splitting (Security Checklist Part B #19) ───
 const LoginPage = lazy(() =>
   import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })),
 );
-const DashboardPage = lazy(() =>
-  import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage })),
+const SignUpPage = lazy(() =>
+  import('./pages/SignUpPage').then((m) => ({ default: m.SignUpPage })),
 );
 const EmployeesPage = lazy(() =>
   import('./pages/EmployeesPage').then((m) => ({ default: m.EmployeesPage })),
@@ -49,42 +51,98 @@ function PageLoader() {
   );
 }
 
+function landingPathForRole(role: UserRole) {
+  if (role === UserRole.EMPLOYEE) {
+    return '/app/profile';
+  }
+  return '/app/employees';
+}
+
+function AppHomeRedirect() {
+  const { currentRole } = useAuth();
+  return <Navigate to={landingPathForRole(currentRole)} replace />;
+}
+
+function ProtectedApp({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function RoleRoute({
+  allowedRoles,
+  children,
+}: {
+  allowedRoles: UserRole[];
+  children: React.ReactNode;
+}) {
+  const { currentRole } = useAuth();
+  if (!allowedRoles.includes(currentRole)) {
+    return <Navigate to={landingPathForRole(currentRole)} replace />;
+  }
+
+  return <>{children}</>;
+}
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<LoginPage />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
 
-            {/* Authenticated routes (wrapped in AppLayout shell) */}
-            <Route
-              path="/app"
-              element={
-                <AppLayout>
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route index element={<DashboardPage />} />
-                      <Route path="employees/*" element={<EmployeesPage />} />
-                      <Route path="attendance/*" element={<AttendancePage />} />
-                      <Route path="time-off/*" element={<TimeOffPage />} />
-                      <Route path="profile/*" element={<ProfilePage />} />
-                      <Route path="settings/company" element={<CompanySettingsPage />} />
-                    </Routes>
-                  </Suspense>
-                </AppLayout>
-              }
-            />
+              {/* Authenticated routes (wrapped in AppLayout shell) */}
+              <Route
+                path="/app/*"
+                element={
+                  <ProtectedApp>
+                    <AppLayout>
+                      <Suspense fallback={<PageLoader />}>
+                        <Routes>
+                          <Route index element={<AppHomeRedirect />} />
+                          <Route path="dashboard" element={<AppHomeRedirect />} />
+                          <Route
+                            path="employees/*"
+                            element={
+                              <RoleRoute allowedRoles={[UserRole.ADMIN, UserRole.HR_OFFICER]}>
+                                <EmployeesPage />
+                              </RoleRoute>
+                            }
+                          />
+                          <Route path="attendance/*" element={<AttendancePage />} />
+                          <Route path="time-off/*" element={<TimeOffPage />} />
+                          <Route path="profile/*" element={<ProfilePage />} />
+                          <Route
+                            path="settings/company"
+                            element={
+                              <RoleRoute allowedRoles={[UserRole.ADMIN]}>
+                                <CompanySettingsPage />
+                              </RoleRoute>
+                            }
+                          />
+                        </Routes>
+                      </Suspense>
+                    </AppLayout>
+                  </ProtectedApp>
+                }
+              />
 
-            {/* Redirects */}
-            <Route path="/" element={<Navigate to="/app" replace />} />
+              {/* Redirects */}
+              <Route path="/" element={<Navigate to="/login" replace />} />
 
-            {/* 404 catch-all (Security Checklist Part B #2) */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
+              {/* 404 catch-all (Security Checklist Part B #2) */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

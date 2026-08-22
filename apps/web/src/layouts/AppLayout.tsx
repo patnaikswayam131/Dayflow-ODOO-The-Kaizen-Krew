@@ -1,221 +1,267 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { UserRole } from '@dayflow/shared';
+import { useAuth } from '../context/AuthContext';
 
-/**
- * AppLayout — Persistent top navigation bar (FR-7).
- *
- * Company Logo | Employees | Attendance | Time Off | Company Settings | Check-in status dot | Avatar dropdown
- *
- * Design tokens from design.md:
- * - Nav bar: white canvas, 64px height, bottom 1px hairline-soft border
- * - Active tab: ink-deep bg, canvas text (button-pill-tab-active)
- * - Inactive tab: canvas bg, ink text, hairline border (button-pill-tab)
- * - Avatar dropdown: card-elevated style
- */
 interface AppLayoutProps {
-  children: React.ReactNode;
-  userRole?: UserRole;
-  userAvatar?: string;
-  userName?: string;
-  onLogout?: () => void;
+  children: ReactNode;
 }
 
-export function AppLayout({
-  children,
-  userRole = UserRole.ADMIN, // Default to ADMIN for dev preview
-  userAvatar,
-  userName = 'Admin User',
-  onLogout,
-}: AppLayoutProps) {
+function formatRole(role: UserRole) {
+  return role
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+export function AppLayout({ children }: AppLayoutProps) {
+  const { currentUser, currentRole, isCheckedIn, toggleCheckIn, logout } = useAuth();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  const isManager = currentRole === UserRole.ADMIN || currentRole === UserRole.HR_OFFICER;
+  const initials = `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase();
+
+  const navItems = useMemo(
+    () =>
+      [
+        { to: '/app/employees', label: 'Employees', show: isManager },
+        { to: '/app/attendance', label: 'Attendance', show: true },
+        { to: '/app/time-off', label: 'Time Off', show: true },
+        { to: '/app/profile', label: 'My Profile', show: true },
+        { to: '/app/settings/company', label: 'Settings', show: currentRole === UserRole.ADMIN },
+      ].filter((item) => item.show),
+    [currentRole, isManager],
+  );
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     }
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const handleLogout = () => {
+    setIsDropdownOpen(false);
+    setIsMenuOpen(false);
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
-    <div className="min-h-screen bg-surface-soft text-ink flex flex-col font-sans">
-      {/* ─── Top Navigation Bar (FR-7) ─── */}
-      <header
-        className="sticky top-0 z-50 bg-canvas border-b border-hairline-soft"
-        style={{ height: '64px' }}
-      >
-        <nav
-          aria-label="Main Navigation"
-          className="h-full max-w-[1280px] mx-auto px-xxl flex items-center justify-between"
-        >
-          {/* Left: Company Logo */}
-          <a href="/app" className="flex items-center gap-xs" aria-label="Dayflow Home">
-            <div className="w-8 h-8 bg-ink-deep rounded-lg flex items-center justify-center text-white">
-              <span className="text-body-sm-bold">D</span>
-            </div>
-            <span className="text-heading-sm text-ink-deep font-semibold hidden sm:block">
-              Dayflow
-            </span>
-          </a>
+    <div className="min-h-screen bg-[#f6f8fb] text-ink font-sans">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] border-r border-hairline-soft bg-canvas lg:flex lg:flex-col">
+        <BrandBlock />
+        <AppNav items={navItems} onNavigate={() => undefined} />
+        <div className="border-t border-hairline-soft p-md-sp">
+          <p className="text-caption-bold text-stone">Signed in as</p>
+          <p className="mt-xxs text-body-sm-bold text-ink-deep">{formatRole(currentRole)}</p>
+          <p className="mt-xxs truncate text-caption text-steel">{currentUser.loginId}</p>
+        </div>
+      </aside>
 
-          {/* Center: Navigation Tabs (pill-tab style from design.md) */}
-          <div className="flex items-center gap-xs">
-            <NavTab
-              href="/app/employees"
-              label="Employees"
-              isActive={currentPath.startsWith('/app/employees')}
-            />
-            <NavTab
-              href="/app/attendance"
-              label="Attendance"
-              isActive={currentPath.startsWith('/app/attendance')}
-            />
-            <NavTab
-              href="/app/time-off"
-              label="Time Off"
-              isActive={currentPath.startsWith('/app/time-off')}
-            />
-            {userRole === UserRole.ADMIN && (
-              <NavTab
-                href="/app/settings/company"
-                label="Settings"
-                isActive={currentPath.startsWith('/app/settings')}
-              />
-            )}
-          </div>
-
-          {/* Right: Status dot + Avatar dropdown */}
-          <div className="flex items-center gap-md">
-            {/* Check-in status dot (FR-8) */}
-            <button
-              onClick={() => setIsCheckedIn(!isCheckedIn)}
-              className="flex items-center gap-xs text-body-sm text-steel hover:text-ink transition-colors px-xs py-xxs rounded-full border border-transparent hover:border-hairline-soft"
-              aria-label={isCheckedIn ? 'Checked in. Click to toggle.' : 'Not checked in. Click to check in.'}
-              title={isCheckedIn ? 'Checked in today (click to toggle)' : 'Not checked in today (click to toggle)'}
-            >
-              <span
-                className={`inline-block w-[10px] h-[10px] rounded-full transition-colors ${
-                  isCheckedIn ? 'bg-success' : 'bg-critical'
-                }`}
-                role="status"
-                aria-live="polite"
-              />
-              <span className="hidden md:inline font-medium text-caption-bold">
-                {isCheckedIn ? 'Checked in' : 'Not checked in'}
-              </span>
-            </button>
-
-            {/* Avatar Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-ink-deep/45"
+            onClick={() => setIsMenuOpen(false)}
+            aria-label="Close navigation menu"
+          />
+          <aside className="relative flex h-full w-[280px] flex-col border-r border-hairline-soft bg-canvas shadow-sticky-panel">
+            <div className="flex items-center justify-between border-b border-hairline-soft pr-base">
+              <BrandBlock compact />
               <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-[40px] h-[40px] rounded-full bg-surface-soft border border-hairline flex items-center justify-center text-body-sm-bold text-ink-deep hover:border-ink transition-colors overflow-hidden"
-                aria-expanded={isDropdownOpen}
-                aria-haspopup="true"
-                aria-label={`User menu for ${userName}`}
+                type="button"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-hairline-soft text-body-sm-bold text-ink"
+                aria-label="Close menu"
               >
-                {userAvatar ? (
-                  <img
-                    src={userAvatar}
-                    alt={`${userName} avatar`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span aria-hidden="true">{userName.charAt(0)}</span>
-                )}
+                X
+              </button>
+            </div>
+            <AppNav items={navItems} onNavigate={() => setIsMenuOpen(false)} />
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="m-md-sp rounded-lg border border-critical px-base py-xs text-left text-body-sm-bold text-critical"
+            >
+              Log Out
+            </button>
+          </aside>
+        </div>
+      )}
+
+      <div className="lg:ml-[260px] lg:w-[calc(100%_-_260px)]">
+        <header className="sticky top-0 z-30 border-b border-hairline-soft bg-canvas/95 backdrop-blur">
+          <div className="flex min-h-[72px] items-center justify-between gap-base px-base md:px-xxl">
+            <div className="flex min-w-0 items-center gap-base">
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(true)}
+                className="flex h-11 w-11 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-hairline-soft bg-surface-soft"
+                aria-label="Open navigation menu"
+              >
+                <span className="h-0.5 w-5 rounded-full bg-ink" />
+                <span className="h-0.5 w-5 rounded-full bg-ink" />
+                <span className="h-0.5 w-5 rounded-full bg-ink" />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/app')}
+                className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink-deep text-body-md-bold text-canvas md:flex lg:hidden"
+                aria-label="Go to assigned home"
+              >
+                D
+              </button>
+              <div className="hidden min-w-[260px] items-center rounded-full border border-hairline-soft bg-surface-soft px-base py-xs md:flex">
+                <span className="text-caption-bold text-stone">Search</span>
+                <input
+                  type="search"
+                  placeholder="employee, leave, attendance"
+                  className="ml-xs flex-1 bg-transparent text-body-sm text-ink outline-none placeholder:text-stone"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-xs md:gap-base">
+              <span className="hidden rounded-full border border-hairline-soft bg-surface-soft px-base py-xs text-caption-bold text-steel md:inline-flex">
+                {formatRole(currentRole)}
+              </span>
+
+              <button
+                type="button"
+                onClick={toggleCheckIn}
+                className={[
+                  'flex min-h-10 items-center gap-xs rounded-full border px-base text-body-sm-bold transition-colors',
+                  isCheckedIn
+                    ? 'border-success/30 bg-success/10 text-success'
+                    : 'border-critical/30 bg-critical/10 text-critical',
+                ].join(' ')}
+                aria-label={isCheckedIn ? 'Check out' : 'Check in'}
+              >
+                <span
+                  className={[
+                    'h-2.5 w-2.5 rounded-full',
+                    isCheckedIn ? 'bg-success' : 'bg-critical',
+                  ].join(' ')}
+                />
+                <span className="hidden sm:inline">{isCheckedIn ? 'Checked in' : 'Check in'}</span>
               </button>
 
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div
-                  className="absolute right-0 top-[48px] w-[220px] bg-canvas rounded-xl border border-hairline-soft shadow-lg py-xs z-50 animate-in fade-in duration-150"
-                  role="menu"
-                  aria-label="User menu options"
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen((open) => !open)}
+                  className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-hairline-soft bg-surface-soft text-body-sm-bold text-ink-deep transition-colors hover:border-hairline"
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="true"
+                  aria-label={`User menu for ${currentUser.firstName} ${currentUser.lastName}`}
                 >
-                  <div className="px-base py-xs border-b border-hairline-soft mb-xxs">
-                    <span className="block text-body-sm-bold text-ink-deep truncate">
-                      {userName}
-                    </span>
-                    <span className="block text-caption text-steel uppercase tracking-wider">
-                      {userRole}
-                    </span>
-                  </div>
-
-                  <a
-                    href="/app/profile"
-                    className="block px-base py-xs text-body-sm text-ink hover:bg-surface-soft transition-colors"
-                    role="menuitem"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    My Profile
-                  </a>
-
-                  {userRole === UserRole.ADMIN && (
-                    <a
-                      href="/app/settings/company"
-                      className="block px-base py-xs text-body-sm text-ink hover:bg-surface-soft transition-colors"
-                      role="menuitem"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      Company Settings
-                    </a>
+                  {currentUser.avatarUrl ? (
+                    <img
+                      src={currentUser.avatarUrl}
+                      alt={`${currentUser.firstName} ${currentUser.lastName}`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    initials
                   )}
+                </button>
 
-                  <hr className="my-xs border-hairline-soft" />
-
-                  <button
-                    className="w-full text-left px-base py-xs text-body-sm text-critical hover:bg-surface-soft transition-colors"
-                    role="menuitem"
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      if (onLogout) onLogout();
-                    }}
+                {isDropdownOpen && (
+                  <div
+                    className="absolute right-0 top-[52px] w-[260px] rounded-lg border border-hairline-soft bg-canvas p-xs shadow-sticky-panel"
+                    role="menu"
                   >
-                    Log Out
-                  </button>
-                </div>
-              )}
+                    <div className="border-b border-hairline-soft px-md-sp py-sm-sp">
+                      <p className="truncate text-body-sm-bold text-ink-deep">
+                        {currentUser.firstName} {currentUser.lastName}
+                      </p>
+                      <p className="truncate text-caption text-steel">{currentUser.email}</p>
+                      <p className="mt-xxs text-caption-bold text-primary">{formatRole(currentRole)}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        navigate('/app/profile');
+                      }}
+                      className="mt-xs w-full rounded-md px-md-sp py-xs text-left text-body-sm text-ink hover:bg-surface-soft"
+                      role="menuitem"
+                    >
+                      My Profile
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="mt-xs w-full rounded-md px-md-sp py-xs text-left text-body-sm-bold text-critical hover:bg-critical/10"
+                      role="menuitem"
+                    >
+                      Log Out
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </nav>
-      </header>
+        </header>
 
-      {/* ─── Main Content Area ─── */}
-      <main className="flex-1 max-w-[1280px] w-full mx-auto px-xxl py-xxl">
-        {children}
-      </main>
+        <main className="mx-auto w-full max-w-[1480px] px-base py-lg-sp md:px-xxl md:py-xxl">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
 
-/**
- * Navigation tab pill component (design.md button-pill-tab).
- */
-function NavTab({ href, label, isActive }: { href: string; label: string; isActive: boolean }) {
+function BrandBlock({ compact = false }: { compact?: boolean }) {
   return (
-    <a
-      href={href}
-      className={`
-        inline-flex items-center justify-center
-        text-body-sm-bold rounded-full
-        px-base py-xs
-        transition-colors duration-150 ease-out
-        ${
-          isActive
-            ? 'bg-ink-deep text-canvas'
-            : 'bg-canvas text-ink border border-hairline hover:bg-surface-soft'
-        }
-      `}
-      aria-current={isActive ? 'page' : undefined}
-    >
-      {label}
-    </a>
+    <div className={`flex h-[72px] items-center gap-base border-b border-hairline-soft px-xl ${compact ? 'border-b-0' : ''}`}>
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink-deep text-body-md-bold text-canvas">
+        D
+      </div>
+      <div>
+        <p className="text-body-md-bold text-ink-deep">Dayflow</p>
+        <p className="text-caption text-steel">HR operations suite</p>
+      </div>
+    </div>
+  );
+}
+
+function AppNav({
+  items,
+  onNavigate,
+}: {
+  items: Array<{ to: string; label: string }>;
+  onNavigate: () => void;
+}) {
+  return (
+    <nav className="flex-1 space-y-xxs px-md-sp py-lg-sp" aria-label="Main navigation">
+      {items.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          onClick={onNavigate}
+          className={({ isActive }) =>
+            [
+              'flex min-h-11 items-center justify-between rounded-lg px-base py-xs text-body-sm-bold transition-colors',
+              isActive
+                ? 'bg-ink-deep text-canvas'
+                : 'text-steel hover:bg-surface-soft hover:text-ink-deep',
+            ].join(' ')
+          }
+        >
+          <span>{item.label}</span>
+          <span className="text-caption">/</span>
+        </NavLink>
+      ))}
+    </nav>
   );
 }

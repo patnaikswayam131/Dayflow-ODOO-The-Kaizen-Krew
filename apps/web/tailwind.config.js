@@ -10,6 +10,8 @@ export default {
           deep: '#0457CB',
           soft: '#0091FF',
         },
+        'on-primary': '#FFFFFF',
+        'on-ink-button': '#FFFFFF',
         'fb-blue': '#1876F2',
         'meta-link': '#385898',
         ink: {
@@ -56,13 +58,13 @@ export default {
         'heading-sm': ['24px', { lineHeight: '1.25', fontWeight: '500' }],
         'subtitle-lg': ['18px', { lineHeight: '1.44', fontWeight: '700' }],
         'subtitle-md': ['18px', { lineHeight: '1.44', fontWeight: '400' }],
-        'body-md-bold': ['16px', { lineHeight: '1.50', fontWeight: '700', letterSpacing: '-0.16px' }],
-        'body-md': ['16px', { lineHeight: '1.50', fontWeight: '400', letterSpacing: '-0.16px' }],
-        'body-sm-bold': ['14px', { lineHeight: '1.43', fontWeight: '700', letterSpacing: '-0.14px' }],
-        'body-sm': ['14px', { lineHeight: '1.43', fontWeight: '400', letterSpacing: '-0.14px' }],
+        'body-md-bold': ['16px', { lineHeight: '1.50', fontWeight: '700', letterSpacing: '0' }],
+        'body-md': ['16px', { lineHeight: '1.50', fontWeight: '400', letterSpacing: '0' }],
+        'body-sm-bold': ['14px', { lineHeight: '1.43', fontWeight: '700', letterSpacing: '0' }],
+        'body-sm': ['14px', { lineHeight: '1.43', fontWeight: '400', letterSpacing: '0' }],
         'caption-bold': ['12px', { lineHeight: '1.33', fontWeight: '700' }],
         caption: ['12px', { lineHeight: '1.33', fontWeight: '400' }],
-        'button-md': ['14px', { lineHeight: '1.43', fontWeight: '700', letterSpacing: '-0.14px' }],
+        'button-md': ['14px', { lineHeight: '1.43', fontWeight: '700', letterSpacing: '0' }],
       },
 
       // ─── Border radius from design.md ───
